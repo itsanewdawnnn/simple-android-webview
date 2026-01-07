@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Required</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #2d3436;
+            text-align: center;
+            background-color: #ffffff;
+        }
+        button {
+            padding: 12px 32px;
+            border: 1px solid #2d3436;
+            background: transparent;
+            border-radius: 4px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s ease;
+        }
+        button:active {
+            background-color: #f8f9fa;
+            transform: scale(0.97);
+        }
+        button:disabled {
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <h2>Offline</h2>
+    <p>Please check your internet connection.</p>
+    <button id="retry" onclick="reconnect()">Try Again</button>
+</div>
+
+<script>
+    function reconnect() {
+        const btn = document.getElementById('retry');
+        btn.innerText = "Connecting...";
+        btn.disabled = true;
+        Android.retryConnection();
+    }
+</script>
+
+</body>
+</html>
