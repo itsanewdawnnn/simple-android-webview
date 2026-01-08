@@ -7,6 +7,7 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         webView = findViewById(R.id.webView)
 
         setupWebView()
+        setupBackNavigation() // New helper method for back press logic
+
         webView.loadUrl(webUrl)
     }
 
@@ -35,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         webView.addJavascriptInterface(WebAppInterface(), "Android")
 
         webView.webViewClient = object : WebViewClient() {
+            // Updated to ensure we are using the modern signature
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 return false
             }
@@ -51,26 +55,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class WebAppInterface {
+    private fun setupBackNavigation() {
+        // This callback replaces the deprecated onBackPressed() override
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (webView.canGoBack()) {
+                    if (webView.url == errorPage) {
+                        webView.loadUrl(webUrl)
+                    } else {
+                        webView.goBack()
+                    }
+                } else {
+                    // Disable this callback and let the system handle the back press
+                    // (which usually closes the activity)
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+    }
 
+    inner class WebAppInterface {
         @JavascriptInterface
         @Suppress("unused")
         fun retryConnection() {
             runOnUiThread {
                 webView.loadUrl(webUrl)
             }
-        }
-    }
-
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            if (webView.url == errorPage) {
-                webView.loadUrl(webUrl)
-            } else {
-                webView.goBack()
-            }
-        } else {
-            super.onBackPressed()
         }
     }
 }
